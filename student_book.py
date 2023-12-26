@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import sqlite3
 
 
@@ -41,6 +42,27 @@ def show_students():
     return
 
 
+def delete_student(deletion_id):
+    db_connect = sqlite3.connect('dziekanat.db')
+    db_cursor = db_connect.cursor()
+    db_cursor.execute("DELETE FROM studenci WHERE oid= " + str(deletion_id))
+    db_connect.commit()
+    db_connect.close()
+
+def delete_handler():
+    handler = student_delete.get()
+    if not (handler.isdigit()):
+        messagebox.showinfo("Informacja", "Nie podano identyfikatora studenta do usuniecia")
+        return
+    student_delete_id = int(handler)
+
+    result = messagebox.askquestion("Zapytanie", "Czy na pewno chcesz usunąć studenta o oid " +
+                                    str(student_delete_id) + "?")
+    if result == "yes":
+        delete_student(student_delete_id)
+    return
+
+
 main_window = Tk()
 # Imie
 label_firstname = Label(main_window, text="imię: ")
@@ -73,12 +95,23 @@ edit_album = Entry(main_window, width=30)
 edit_album.grid(row=4, column=1, padx=20)
 
 # Execute Operation
+
+# Add Operation
 student_save_button = Button(main_window, text="Dodaj nowego studenta", command=add_student)
 student_save_button.grid(row=5, columnspan=2, pady=10, padx=20, ipadx=100)
+
+# Show Operation
 student_show_button = Button(main_window, text="Wyświetl studentów", command=show_students)
 student_show_button.grid(row=6, column=0, pady=5, columnspan=2, padx=20, ipadx=100)
 
 result_label = Label(main_window, text="")
 result_label.grid(row=7, column=0, columnspan=2)
+
+# Delete Operation
+student_delete = Entry(main_window, width=20)
+student_delete.grid(row=8, column=0, padx=3)
+student_delete_button = Button(main_window, text="Usuń studenta", command=delete_handler)
+student_delete_button.grid(row=8, column=1, padx=3)
+
 
 main_window.mainloop()
