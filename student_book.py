@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import sqlite3
+current_student_oid = 0
 
 
 def add_student():
@@ -49,6 +50,7 @@ def delete_student(deletion_id):
     db_connect.commit()
     db_connect.close()
 
+
 def delete_handler():
     handler = student_delete.get()
     if not (handler.isdigit()):
@@ -63,7 +65,74 @@ def delete_handler():
     return
 
 
+def save_student_data(edition_id):
+    db_connect = sqlite3.connect('dziekanat.db')
+    db_cursor = db_connect.cursor()
+    db_cursor.execute("UPDATE studenci SET imie=:p_imie, nazwisko=:p_nazwisko, adres=:p_adres, pesel=:p_pesel, album=:p_album WHERE oid=:p_oid", {
+        'p_imie': edit_firstname.get(),
+        'p_nazwisko': edit_lastname.get(),
+        'p_adres': edit_adres.get(),
+        'p_pesel': edit_pesel.get(),
+        'p_album': edit_album.get(),
+        'p_oid': str(edition_id)
+    })
+    db_connect.commit()
+    db_connect.close()
+
+
+def add_handler():
+    global current_student_oid
+    if current_student_oid > 0:
+        print("Tryb Edycji" + str(current_student_oid))
+        save_student_data(current_student_oid)
+        current_student_oid = 0
+        student_save_button['text'] = "Dodaj nowego studenta"
+    else:
+        add_student()
+
+
+def edit_handler():
+    if not student_edit.get().isdigit():
+        messagebox.showinfo("Informacja", "Nie podano identyfikatora studenta do edycji")
+        return
+    global current_student_oid
+    current_student_oid = int(student_edit.get())
+    print(current_student_oid)
+    db_connect = sqlite3.connect('dziekanat.db')
+    db_cursor = db_connect.cursor()
+    query = "SELECT * FROM studenci WHERE oid=" + str(current_student_oid)
+    db_cursor.execute(query)
+    print(query)
+    query_result = db_cursor.fetchall()
+
+    if len(query_result) > 0:
+        edit_firstname.delete(0, END)
+        edit_firstname.insert(0, str(query_result[0][0]))
+
+        edit_lastname.delete(0, END)
+        edit_lastname.insert(0, str(query_result[0][1]))
+
+        edit_adres.delete(0, END)
+        edit_adres.insert(0, str(query_result[0][2]))
+
+        edit_pesel.delete(0, END)
+        edit_pesel.insert(0, str(query_result[0][3]))
+
+        edit_album.delete(0, END)
+        edit_album.insert(0, str(query_result[0][4]))
+        print(query_result[0])
+
+        student_save_button['text'] = 'Zapisz zmiany'
+
+    else:
+        messagebox.showinfo("Informacja", "Nie ma studenta o podanym identyfikatorze")
+
+    db_connect.commit()
+    db_connect.close()
+
+
 main_window = Tk()
+
 # Imie
 label_firstname = Label(main_window, text="imię: ")
 label_firstname.grid(row=0, column=0, padx=20)
@@ -94,10 +163,11 @@ label_album.grid(row=4, column=0, padx=20)
 edit_album = Entry(main_window, width=30)
 edit_album.grid(row=4, column=1, padx=20)
 
+
 # Execute Operation
 
 # Add Operation
-student_save_button = Button(main_window, text="Dodaj nowego studenta", command=add_student)
+student_save_button = Button(main_window, text="Dodaj nowego studenta", command=add_handler)
 student_save_button.grid(row=5, columnspan=2, pady=10, padx=20, ipadx=100)
 
 # Show Operation
@@ -113,5 +183,10 @@ student_delete.grid(row=8, column=0, padx=3)
 student_delete_button = Button(main_window, text="Usuń studenta", command=delete_handler)
 student_delete_button.grid(row=8, column=1, padx=3)
 
+# Edition Operation
+student_edit = Entry(main_window, width=20)
+student_edit.grid(row=9, column=0, padx=3)
+student_edit_button = Button(main_window, text="Edytuj studenta", command=edit_handler)
+student_edit_button.grid(row=9, column=1, padx=3)
 
 main_window.mainloop()
