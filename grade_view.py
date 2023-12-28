@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from grade_controller import add_grade
+from grade_controller import add_grade, edit_grade
 import sqlite3
 
 
@@ -27,7 +27,7 @@ def show_grades(identification):
 
         db_connect = sqlite3.connect('dziekanat.db')
         db_cursor = db_connect.cursor()
-        db_cursor.execute('SELECT przedmiot, ocena FROM oceny WHERE id_studenta=:p_id_stud', {
+        db_cursor.execute('SELECT przedmiot, ocena, oid FROM oceny WHERE id_studenta=:p_id_stud', {
             "p_id_stud": identification
         })
         student_grades = db_cursor.fetchall()
@@ -40,11 +40,11 @@ def show_grades(identification):
 
     update_grades()
 
-    def tile_select():
+    def tile_select(event):
         for selected_item in grades_net.selection():
             chosen_tile = grades_net.item(selected_item)
             values_from_tile = chosen_tile['values']
-            print(values_from_tile)
+            edit_grade(identification, values_from_tile, update_grades)
 
     grades_net.bind('<<TreeviewSelect>>', tile_select)
 

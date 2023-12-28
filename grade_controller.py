@@ -83,3 +83,44 @@ def add_grade(student_id, update_callback):
     close_window.grid(row=2, column=2, pady=10)
 
     add_grade_window.mainloop()
+
+
+def edit_grade(student_id, tile_values, update_callback):
+    print(tile_values)
+
+    def change_grade():
+        db_connect = sqlite3.connect('dziekanat.db')
+        db_cursor = db_connect.cursor()
+        db_cursor.execute("UPDATE oceny SET id_studenta=?, przedmiot=?, ocena=? WHERE oid=?", (
+            student_id,
+            edit_subject_entry.get(),
+            int(edit_grade_entry.get()),
+            int(tile_values[2])
+        ))
+        db_connect.commit()
+        db_connect.close()
+        update_callback()
+        grade_edition_window.destroy()
+
+    grade_edition_window = Tk()
+    grade_edition_window.title("Edycja oceny")
+
+    subject_label = Label(grade_edition_window, text="Nazwa przedmiotu: ")
+    subject_label.grid(row=0, column=0)
+    edit_subject_entry = Entry(grade_edition_window, width=20)
+    edit_subject_entry.insert(0, tile_values[0])
+    edit_subject_entry.grid(row=0, column=1)
+
+    grade_label = Label(grade_edition_window, text="Ocena z przedmiotu: ")
+    grade_label.grid(row=1, column=0)
+    edit_grade_entry = Entry(grade_edition_window, width=5)
+    edit_grade_entry.insert(0, tile_values[1])
+    edit_grade_entry.grid(row=1, column=1)
+
+    submit_changes_button = Button(grade_edition_window, fg='green', text="Edytuj ocene", command=change_grade)
+    submit_changes_button.grid(row=2, column=0)
+
+    close_window = Button(grade_edition_window, fg='red', text="Zamknij okno", command=grade_edition_window.destroy)
+    close_window.grid(row=2, column=1)
+
+    grade_edition_window.mainloop()
