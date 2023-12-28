@@ -1,18 +1,14 @@
 from tkinter import *
-from PIL import Image, ImageTk
+from tkinter import messagebox
+from grade_view import show_grades
 import sqlite3
-
-current_student_oid = 0
 
 
 def add_form():
+
     def add_student():
         db_connect = sqlite3.connect('dziekanat.db')
         db_cursor = db_connect.cursor()
-        # Un-comment below to create table studenci
-        # sqlquery = "CREATE TABLE studenci (imie text, nazwisko text, adres text, pesel text, album integer)"
-        # db_cursor.execute(sqlquery)
-        # db_connect.commit()
         db_cursor.execute("INSERT INTO studenci VALUES (:p_imie, :p_nazwisko, :p_adres, :p_pesel, :p_album)",
                           {
                               'p_imie': edit_firstname.get(),
@@ -24,33 +20,11 @@ def add_form():
         db_connect.commit()
         db_connect.close()
 
-    def save_student_data(edition_id):
-        db_connect = sqlite3.connect('dziekanat.db')
-        db_cursor = db_connect.cursor()
-        db_cursor.execute(
-            "UPDATE studenci SET imie=:p_imie, nazwisko=:p_nazwisko, adres=:p_adres, pesel=:p_pesel, album=:p_album WHERE oid=:p_oid",
-            {
-                'p_imie': edit_firstname.get(),
-                'p_nazwisko': edit_lastname.get(),
-                'p_adres': edit_adres.get(),
-                'p_pesel': edit_pesel.get(),
-                'p_album': edit_album.get(),
-                'p_oid': str(edition_id)
-            })
-        db_connect.commit()
-        db_connect.close()
-
-    def add_handler():
-        global current_student_oid
-        if current_student_oid > 0:
-            print("Tryb Edycji" + str(current_student_oid))
-            save_student_data(current_student_oid)
-            current_student_oid = 0
-            student_save_button['text'] = "Dodaj nowego studenta"
-        else:
-            add_student()
+        messagebox.showinfo("Info dodania", "Student dodany")
+        main_window.destroy()
 
     main_window = Tk()
+    main_window.title("Dodawanie Studenta")
 
     # Imie
     label_firstname = Label(main_window, text="imię: ")
@@ -85,7 +59,7 @@ def add_form():
     # Execute Operation
 
     # Add Operation
-    student_save_button = Button(main_window, text="Dodaj nowego studenta", command=add_handler)
+    student_save_button = Button(main_window, text="Dodaj nowego studenta", command=add_student)
     student_save_button.grid(row=5, columnspan=2, pady=10, padx=20, ipadx=100)
 
     main_window.mainloop()
@@ -97,7 +71,8 @@ def personal_profile(personal_data, update_callback):
         db_connect = sqlite3.connect('dziekanat.db')
         db_cursor = db_connect.cursor()
         db_cursor.execute(
-            "UPDATE studenci SET imie=:p_imie, nazwisko=:p_nazwisko, adres=:p_adres, pesel=:p_pesel, album=:p_album WHERE oid=:p_oid",
+            "UPDATE studenci SET imie=:p_imie, nazwisko=:p_nazwisko, adres=:p_adres, "
+            "pesel=:p_pesel, album=:p_album WHERE oid=:p_oid",
             {
                 'p_imie': firstname_dialog.get(),
                 'p_nazwisko': lastname_dialog.get(),
@@ -152,8 +127,11 @@ def personal_profile(personal_data, update_callback):
     album_dialog.grid(row=5, column=1, padx=20)
     album_dialog.insert(0, personal_data[5])
 
-    show_grades = Button(personal_window, text="Pokaż Oceny", fg="blue")
-    show_grades.grid(row=6, column=0, pady=20)
+    def handle_grades_button():
+        show_grades(personal_data[0])
+
+    show_grades_button = Button(personal_window, text="Pokaż Oceny", fg="blue", command=handle_grades_button)
+    show_grades_button.grid(row=6, column=0, pady=20)
 
     edit_button = Button(personal_window, text="Potwierdź Edycje", command=save_edited_data, fg="green")
     edit_button.grid(row=6, column=1, pady=20)
