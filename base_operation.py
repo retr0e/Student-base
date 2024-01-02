@@ -7,10 +7,11 @@ def add_form():
     db_connect = sqlite3.connect('dziekanat.db')
     db_cursor = db_connect.cursor()
     # Un-comment below to create table studenci
-    sqlquery = "DROP TABLE oceny"
-    db_cursor.execute(sqlquery)
-    db_connect.commit()
-    sqlquery = "CREATE TABLE oceny (id_studenta integer, przedmiot text, ocena integer)"
+    # sqlquery = "DROP TABLE oceny"
+    # db_cursor.execute(sqlquery)
+    # db_connect.commit()
+    # sqlquery = "CREATE TABLE oceny (id_studenta integer, przedmiot text, ocena integer)"
+    sqlquery = "CREATE TABLE zdjecia (id_studenta integer, zdjecie_studenta text)"
     db_cursor.execute(sqlquery)
     db_connect.commit()
     # choices = ['Matematyka', 'Język Polski', 'Język Angielski', 'Biologia', 'Informatyka', 'Chemia', 'Historia']

@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from grade_view import show_grades
+from photo_controller import show_photo, edit_photo
 import sqlite3
 
 
@@ -17,6 +18,20 @@ def add_form():
                               'p_pesel': edit_pesel.get(),
                               'p_album': edit_album.get()
                           })
+        db_connect.commit()
+        db_cursor.execute("SELECT oid FROM studenci WHERE pesel=? AND album=?", (
+            edit_pesel.get(),
+            edit_album.get()
+        ))
+        new_student_id = db_cursor.fetchall()
+        print(new_student_id[0][0])
+
+        # Add default photo information to data_base
+        default_photo_path = "Photos/default_img.png"
+        db_cursor.execute("INSERT INTO zdjecia VALUES (?, ?)", (
+            int(new_student_id[0][0]),
+            default_photo_path
+        ))
         db_connect.commit()
         db_connect.close()
 
@@ -89,9 +104,15 @@ def personal_profile(personal_data, update_callback):
     personal_window.geometry("700x270")
     personal_window.title("Profil Studenta")
 
-    image_button = Button(personal_window, text="Pokaż zdjęcie")
+    def handle_show_picture_button():
+        show_photo(personal_data)
+
+    def handle_edit_picture_button():
+        edit_photo(personal_data)
+
+    image_button = Button(personal_window, text="Pokaż zdjęcie", command=handle_show_picture_button)
     image_button.grid(row=0, column=3, pady=20)
-    change_image_button = Button(personal_window, text="Edytuj zdjęcie")
+    change_image_button = Button(personal_window, text="Edytuj zdjęcie", command=handle_edit_picture_button)
     change_image_button.grid(row=1, column=3)
 
     header = Label(personal_window, text="Edycja profilu studenta:")
