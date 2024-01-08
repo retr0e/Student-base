@@ -11,8 +11,12 @@ def add_form():
     # db_cursor.execute(sqlquery)
     # db_connect.commit()
     # sqlquery = "CREATE TABLE oceny (id_studenta integer, przedmiot text, ocena integer)"
-    sqlquery = "CREATE TABLE zdjecia (id_studenta integer, zdjecie_studenta text)"
-    db_cursor.execute(sqlquery)
+    # sqlquery = "CREATE TABLE zdjecia (id_studenta integer, zdjecie_studenta text)"
+    nazwa = input("Podaj nazwe przedmiotu")
+    sqlquery = "DELETE FROM przedmioty WHERE nazwa=:naz"
+    db_cursor.execute(sqlquery, {
+        'naz': nazwa,
+    })
     db_connect.commit()
     # choices = ['Matematyka', 'Język Polski', 'Język Angielski', 'Biologia', 'Informatyka', 'Chemia', 'Historia']
     # for choice in choices:
@@ -22,31 +26,5 @@ def add_form():
     #     db_connect.commit()
     db_connect.close()
 
+
 add_form()
-
-
-# Wyswietlanie zdjęcia
-# def show_image(image_path):
-#     # Utwórz główne okno
-#     root = tk.Tk()
-#     root.title("Wyświetlanie Zdjęcia")
-#
-#     # Wczytaj obraz za pomocą modułu Pillow
-#     image = Image.open(image_path)
-#
-#     # Przekształć obraz na format obsługiwany przez Tkinter
-#     tk_image = ImageTk.PhotoImage(image)
-#
-#     # Utwórz etykietę i umieść na niej obraz
-#     label = tk.Label(root, image=tk_image)
-#     label.pack()
-#
-#     # Uruchom główną pętlę programu
-#     root.mainloop()
-#
-#
-# # Wprowadź ścieżkę do zdjęcia, które chcesz wyświetlić
-# image_path = "default_img.png"
-#
-# # Wywołaj funkcję show_image, przekazując ścieżkę do zdjęcia
-# show_image(image_path)

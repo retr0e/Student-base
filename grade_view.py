@@ -8,7 +8,7 @@ def show_grades(identification):
 
     grades_window = Tk()
     grades_window.title('Lista ocen')
-    grades_window.geometry('230x150')
+    grades_window.geometry('420x150')
 
     columns = ('k_przedmiot', 'k_ocena')
 
@@ -58,5 +58,45 @@ def show_grades(identification):
 
     add_grade_button = Button(grades_window, text="Dodaj Ocenę", fg="orange", command=handle_add_grade_button)
     add_grade_button.grid(row=1, columnspan=2)
+
+    def sort_subject():
+        for item in grades_net.get_children():
+            grades_net.delete(item)
+
+        db_connect = sqlite3.connect('dziekanat.db')
+        db_cursor = db_connect.cursor()
+        db_cursor.execute('SELECT przedmiot, ocena, oid FROM oceny WHERE id_studenta=:p_id_stud ORDER BY przedmiot', {
+            "p_id_stud": identification
+        })
+        student_grades = db_cursor.fetchall()
+
+        for grades in student_grades:
+            grades_net.insert('', END, values=grades)
+
+        db_connect.commit()
+        db_connect.close()
+
+    def sort_grades():
+        for item in grades_net.get_children():
+            grades_net.delete(item)
+
+        db_connect = sqlite3.connect('dziekanat.db')
+        db_cursor = db_connect.cursor()
+        db_cursor.execute('SELECT przedmiot, ocena, oid FROM oceny WHERE id_studenta=:p_id_stud ORDER BY ocena', {
+            "p_id_stud": identification
+        })
+        student_grades = db_cursor.fetchall()
+
+        for grades in student_grades:
+            grades_net.insert('', END, values=grades)
+
+        db_connect.commit()
+        db_connect.close()
+
+    sort_by_subject = Button(grades_window, text="Sortuj po przedmiotach", fg="blue", command=sort_subject)
+    sort_by_subject.grid(row=0, column=2)
+
+    sort_by_grade = Button(grades_window, text="Sortuj po ocenach", fg="blue", command=sort_grades)
+    sort_by_grade.grid(row=1, column=2)
 
     grades_window.mainloop()
