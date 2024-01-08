@@ -86,7 +86,6 @@ def add_grade(student_id, update_callback):
 
 
 def edit_grade(student_id, tile_values, update_callback):
-    print(tile_values)
 
     def change_grade():
         db_connect = sqlite3.connect('dziekanat.db')
@@ -122,5 +121,21 @@ def edit_grade(student_id, tile_values, update_callback):
 
     close_window = Button(grade_edition_window, fg='red', text="Zamknij okno", command=grade_edition_window.destroy)
     close_window.grid(row=2, column=1)
+
+    def delete_grade_handler():
+        res = messagebox.askquestion("Usunięcie oceny", "Czy napewno chcesz usunąć ocene?")
+        if res == "yes":
+            db_connect = sqlite3.connect('dziekanat.db')
+            db_cursor = db_connect.cursor()
+            db_cursor.execute("DELETE FROM oceny WHERE id_studenta=:p_id", {
+                'p_id': int(student_id),
+            })
+            db_connect.commit()
+            db_connect.close()
+            update_callback()
+            grade_edition_window.destroy()
+
+    delete_grade_button = Button(grade_edition_window, fg='red', text='Usuń ocene', command=delete_grade_handler)
+    delete_grade_button.grid(row=2, column=2)
 
     grade_edition_window.mainloop()
