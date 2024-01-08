@@ -89,10 +89,11 @@ def edit_grade(student_id, tile_values, update_callback):
 
     def change_grade():
         db_connect = sqlite3.connect('dziekanat.db')
+        print(subject.get())
         db_cursor = db_connect.cursor()
         db_cursor.execute("UPDATE oceny SET id_studenta=?, przedmiot=?, ocena=? WHERE oid=?", (
             student_id,
-            edit_subject_entry.get(),
+            subject.get(),
             int(edit_grade_entry.get()),
             int(tile_values[2])
         ))
@@ -104,11 +105,28 @@ def edit_grade(student_id, tile_values, update_callback):
     grade_edition_window = Tk()
     grade_edition_window.title("Edycja oceny")
 
+    def on_select(value):
+        subject_choice_label['text'] = subject.get()
+
+    db_connect = sqlite3.connect('dziekanat.db')
+    db_cursor = db_connect.cursor()
+    db_cursor.execute("SELECT oid, * FROM przedmioty")
+    subject_values = db_cursor.fetchall()
+    db_connect.commit()
+
+    subjects = []
+    for val in subject_values:
+        subjects.append(val[1])
+
     subject_label = Label(grade_edition_window, text="Nazwa przedmiotu: ")
     subject_label.grid(row=0, column=0)
-    edit_subject_entry = Entry(grade_edition_window, width=20)
-    edit_subject_entry.insert(0, tile_values[0])
-    edit_subject_entry.grid(row=0, column=1)
+
+    subject = StringVar()
+    subject_choice_label = Label(grade_edition_window, text=subject.get(), width=20)
+    subject_choice_label.grid(row=0, column=1, padx=20, pady=10)
+
+    subject_menu = OptionMenu(grade_edition_window, subject, *subjects, command=on_select)
+    subject_menu.grid(row=0, column=2, padx=20, pady=10)
 
     grade_label = Label(grade_edition_window, text="Ocena z przedmiotu: ")
     grade_label.grid(row=1, column=0)
