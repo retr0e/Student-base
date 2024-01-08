@@ -81,6 +81,30 @@ def add_form():
 
 
 def personal_profile(personal_data, update_callback):
+    print(personal_data)
+
+    def delete_student_handler():
+        student_id = int(personal_data[0])
+        res = messagebox.askquestion("Usuwanie studenta", "Czy napewno chcesz usunąć studenta?")
+        if res == "yes":
+            print(res)
+            db_connect = sqlite3.connect('dziekanat.db')
+            db_cursor = db_connect.cursor()
+            db_cursor.execute("DELETE FROM studenci WHERE oid=:p_id", {
+                'p_id': student_id,
+            })
+            db_connect.commit()
+            db_cursor.execute("DELETE FROM zdjecia WHERE id_studenta=:p_id", {
+                'p_id': student_id,
+            })
+            db_connect.commit()
+            db_cursor.execute("DELETE FROM oceny WHERE id_studenta=:p_id", {
+                'p_id': student_id,
+            })
+            db_connect.commit()
+            db_connect.close()
+            update_callback()
+            personal_window.destroy()
 
     def save_edited_data():
         db_connect = sqlite3.connect('dziekanat.db')
@@ -114,6 +138,9 @@ def personal_profile(personal_data, update_callback):
     image_button.grid(row=0, column=3, pady=20)
     change_image_button = Button(personal_window, text="Edytuj zdjęcie", command=handle_edit_picture_button)
     change_image_button.grid(row=1, column=3)
+
+    delete_student_button = Button(personal_window, text="Usuń studenta", fg="red", command=delete_student_handler)
+    delete_student_button.grid(row=5, column =3)
 
     header = Label(personal_window, text="Edycja profilu studenta:")
     header.grid(row=0, columnspan=2, pady=10)
